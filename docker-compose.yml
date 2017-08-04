@@ -4,7 +4,7 @@ services:
     build: .
     ports:
       - "3000:3000"
-      command: node index.js
+    command: node index.js
     environment: 
       MONGO_URL: "mongodb://mongo:27017"
   mongo:
