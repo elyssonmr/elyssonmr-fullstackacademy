@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 
 const MongoClient = require('mongodb').MongoClient
-const mongoUri =  'mongodb://admin:<PASSWORD>@elyssonmr-shard-00-00-fzggn.mongodb.net:27017,elyssonmr-shard-00-01-fzggn.mongodb.net:27017,elyssonmr-shard-00-02-fzggn.mongodb.net:27017/<DATABASE>?ssl=true&replicaSet=elyssonmr-shard-0&authSource=admin'
+const mongoUri =  process.env.MONGO_URL
 
 app.use(express.static('public'))
 
@@ -27,12 +27,19 @@ app.get('/calculadora', (req, res) => {
   const resultado = {
     calculado: false
   }
+  
   if(req.query.valorInicial && req.query.taxa && req.query.tempo){
+    const valorInicial = parseFloat(req.query.valorInicial)
+    const taxaMensal = parseFloat(req.query.taxa)/100
+    const tempo = parseInt(req.query.tempo)
     resultado.calculado = true
+    var meses = Array.from(new Array(tempo), (x, i) => i + 1)
+
+    resultado.valoresMensais = meses.map(mes => ({"mes": mes, "valor": calculoJuros(valorInicial, taxaMensal, mes)}))
     resultado.total = calculoJuros(
-      parseFloat(req.query.valorInicial),
-      parseFloat(req.query.taxa)/100, 
-      parseInt(req.query.tempo)
+      valorInicial,
+      taxaMensal, 
+      tempo
     )
   }
   res.render('calculadora', { resultado })
@@ -91,9 +98,3 @@ MongoClient.connect(mongoUri, (err, db) => {
     app.listen(port, () => console.log('Server running...'))
   }
 })
-
-
-
-
-
-
