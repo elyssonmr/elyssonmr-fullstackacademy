@@ -83,7 +83,8 @@ app.post('/nova-operacao', async (req, res) => {
 
 MongoClient.connect(mongoUri, (err, db) => {
   if(err){
-    
+    console.log("Mongo Error")
+    console.log(err)
     return
   }else{
     app.db = db
